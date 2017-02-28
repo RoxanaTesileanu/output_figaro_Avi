@@ -1,0 +1,37 @@
+Welcome to Scala version 2.11.6 (OpenJDK 64-Bit Server VM, Java 1.8.0_121).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> import com.cra.figaro.language._
+import com.cra.figaro.language._
+
+scala> //atomic elements - basic probabilistic variables that don't depend on any other elements
+
+scala> // the import statement activates the Figaro package. One of the classes in this package is called Flip
+
+scala> val sunnyToday= Flip(0.2)
+sunnyToday: com.cra.figaro.language.AtomicFlip = Flip(0.2)
+
+scala> // you get an atomic element created with Flip
+
+scala> // the value of the sunnyToday variable is Flip(0.2)
+
+scala> // the value Flip(0.2) is a Figaro element. An element is a data structure representing a process that randomly produces a value (in this case Boolean true or false). But an element could have any number of possible values representing different outcomes).
+
+scala> // Flip(0.2) is an instance of Element[Boolean]
+
+scala> import com.cra.figaro.algorithm.factored.VariableElimination
+import com.cra.figaro.algorithm.factored.VariableElimination
+
+scala> // imports the inference algorithm
+
+scala> // variable elimination is an exact inference algorithm
+
+scala> println(VariableElimination.probability(sunnyToday, true)
+     | )
+0.2
+
+scala> // specify your query: what algorithm, what measures
+
+scala> // the model consists only of Flip(0.2) so it's normal to return a probability of 0.2 for sunnyToday true
+
