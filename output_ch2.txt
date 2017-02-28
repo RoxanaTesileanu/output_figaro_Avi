@@ -34,4 +34,63 @@ scala> println(VariableElimination.probability(sunnyToday, true)
 scala> // specify your query: what algorithm, what measures
 
 scala> // the model consists only of Flip(0.2) so it's normal to return a probability of 0.2 for sunnyToday true
+scala> //2.2.3 Building up models and making observations
+
+scala> // import the Figaro construct If
+
+scala> import com.cra.figaro.library.compound.If
+import com.cra.figaro.library.compound.If
+
+scala> val greetingToday = If(sunnyToday,
+     | Select(0.6 -> "Hello, world!", 0.4 -> "Howdy, universe!"),
+     | Select(0.2 -> "Hello, world!", 0.8 -> "Oh no, not again"))
+greetingToday: com.cra.figaro.library.compound.If[String] = If(Flip(0.2), Select(0.6 -> Hello, world!, 0.4 -> Howdy, universe!), Select(0.2 -> Hello, world!, 0.8 -> Oh no, not again))
+
+scala> // for both possible values of the sunnyToday element there is a greeting set of two greetings
+
+scala> // greetingToday is also an element representing a random process
+
+scala> // greetingToday is a compound element
+
+scala> // the value type of the greetingToday values is String, so greetingToday is an Element[String]
+
+scala> // so as Figaro constructs so far we've got: Flip, If and Select
+
+scala> // MAKING OBSERVATIONS: you've recorded today's greeting and it's "Hello, world!"; you can specify this EVIDENCE/OBSERVATION" 
+
+scala> greetingToday.observe("Hello, world!") // insert an evidence/record with the observe method
+
+scala> println(VariableElimination.probability(sunnyToday, true)) // now, with updated info you can see the prob that the weather is sunny
+0.4285714285714285
+
+scala> // you can remove the observation regarding the greeting message with unobserve()
+
+scala> greetingToday.unobserve()
+
+scala> // rerun the same query to get the general answer from the Flip()
+
+scala> println(VariableElimination.probability(sunnyToday, true))
+0.2
+
+scala> val sunnyTomorrow = If(sunnyToday, Flip(0.8), Flip(0.5))
+sunnyTomorrow: com.cra.figaro.library.compound.If[Boolean] = If(Flip(0.2), Flip(0.8), Flip(0.5))
+
+scala> val greetingTomorrow = If(sunnyTomorrow,
+     | Select(0.6 -> "Hello, world!", 0.4 -> "Howdy, universe!"),
+     | Select(0.2 -> "Hello, world!", 0.8 -> "Oh no, not again"))
+greetingTomorrow: com.cra.figaro.library.compound.If[String] = If(If(Flip(0.2), Flip(0.8), Flip(0.5)), Select(0.6 -> Hello, world!, 0.4 -> Howdy, universe!), Select(0.2 -> Hello, world!, 0.8 -> Oh no, not again))
+
+scala> // now compute the prob of tomorrow's greeting of being "Hello, world!" with and without evidence on today's greeting:
+
+scala> println(VariableElimination.probability(greetingTomorrow, "Hello, world!"))
+0.42399999999999993
+
+scala> greetingToday.observe("Hello, world!")
+
+scala> println(VariableElimination.probability(greetingTomorrow, "Hello, world!"))
+0.45142857142857146
+
+scala> // the two outcomes are close. It should be because of Flip(0.8) for tomorrow  when sunnyToday true and Flip(0.5)&(0.2) for tomorrow bad weather....?!
+
+
 
