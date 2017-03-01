@@ -92,5 +92,105 @@ scala> println(VariableElimination.probability(greetingTomorrow, "Hello, world!"
 
 scala> // the two outcomes are close. It should be because of Flip(0.8) for tomorrow  when sunnyToday true and Flip(0.5)&(0.2) for tomorrow bad weather....?!
 
+scala> class Greeting {
+     | var string= "Hello, world!"
+     | }
+defined class Greeting
+
+scala> // you define a class with: class { body }. Inside the body you place variables and methods.
+
+scala> val greetingToday = new Greeting
+greetingToday: Greeting = Greeting@16b4a017
+
+scala> // the variable greetingToday is an instance of the class Greeting
+
+scala> val greetingTomorrow = new Greeting
+greetingTomorrow: Greeting = Greeting@1ff8b8f
+
+scala> greetingToday.
+asInstanceOf   isInstanceOf   string   string_=   toString
+
+scala> println(greetingToday)
+$line4.$read$$iw$$iw$$iw$$iw$Greeting@16b4a017
+
+scala> println(greetingToday.string)
+Hello, world!
+
+scala> println(greetingTomorrow.string)
+Hello, world!
+
+scala> greetingTomorrow.string= "Howdy, universe!"
+greetingTomorrow.string: String = Howdy, universe!
+
+scala> println(greetingTomorrow.string)
+Howdy, universe!
+
+scala> // two different instances can take different values in the same run!
+
+scala> //but if a variable is used in the definition of another variable, the value of the two variables remains the same!
+
+scala> val anotherGreeting = greetingToday
+anotherGreeting: Greeting = Greeting@16b4a017
+
+scala> anotherGreeting.string="My great greeting!"
+anotherGreeting.string: String = My great greeting!
+
+scala> println(anotherGreeting.string, greetingToday.string)
+(My great greeting!,My great greeting!)
+
+scala> // If the same Scala variable representing an element appears multiple times in a program, it will have the same value in every run.
+
+scala> // 2.3 Working with basic building blocks: atomic elements
+
+scala> // ATOMIC ELEMENTS - independent, completely self-contained
+
+scala> // DISCRETE and CONTINUOUS atomic elements
+
+scala> // The distinction between discrete and continuous elements makes a difference in how probabilitie are defined!
+
+scala> // Key definitions: atomic element - self-contained and independent, compound element - built out of other elements, discrete and continuous atomic elem.
+
+scala> //2.3.1 Discrete atomic elements
+
+scala> // examples: Flip, Select, Binomial
+
+scala> // the official type of Flip(p) is AtomicFlip (a subclass of Element[Boolean]). This is to distinguish from CompoundFlip.
+
+scala> // Select matches probabilities with outcomes via -> : Select( p1 -> outcome1, p2 -> outcome2, p3 -> outcome3) (sum of ps is one)
+
+scala> // the type of the outcomes gives the type of the Select element. So, if the outcomes are Strings then the type of the Select element is AtomicSelect[String] (a subclass of Element[String])
+
+scala> // A SELECT ELEMENT CORRESPONDS TO A PROCESS IN WHICH EACH POSSIBLE OUTCOME IS SELECETED WITH THE CORRESPONDING PROBABILITY!!!
+
+scala> println(VariableElimination.probability(greeting, "Hi!")
+     | )
+0.6000000000000001
+
+scala> println(VariableElimination.probability(greeting, "Hello!"))
+0.30000000000000004
+
+scala> println(VariableElimination.probability(greeting, "Salut"))
+0.10000000000000002
+
+scala> // Binomial - you have a number of trials and each trial has the same probability to come out true. Example: 7 days, each day has a p of being sunny of 0.2; now for a week how many days come out sunny? Binomial(7,0.2)
+
+scala> import com.cra.figaro.library.atomic.discrete.Binomial
+import com.cra.figaro.library.atomic.discrete.Binomial
+
+scala> val numSunnyDaysInWeek= Binomial(7, 0.2) // Binomial(no. of indep. trials, p of each 
+numSunnyDaysInWeek: com.cra.figaro.library.atomic.discrete.AtomicBinomial = Binomial(7, 0.2)
+
+scala> println(VariableElimination.probability(numSunnyDaysInWeek, 3))
+0.114688
+
+scala> println(VariableElimination.probability(numSunnyDaysInWeek, 2))
+0.27525120000000003
+
+scala> // the definition of Binomial assumes that the trials are independent; the first trial coming out true doesn't change the probability that the second trial will come out true!!
+
+
+
+
+
 
 
