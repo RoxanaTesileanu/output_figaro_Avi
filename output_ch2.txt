@@ -188,6 +188,95 @@ scala> println(VariableElimination.probability(numSunnyDaysInWeek, 2))
 
 scala> // the definition of Binomial assumes that the trials are independent; the first trial coming out true doesn't change the probability that the second trial will come out true!!
 
+scala> // 2.3.2 Continuous atomic elements
+
+scala> // examples: Normal and Uniform
+
+scala> import com.cra.figaro.library.atomic.continuous.Normal
+import com.cra.figaro.library.atomic.continuous.Normal
+
+scala> val temperature = Normal(40,100) 
+temperature: com.cra.figaro.library.atomic.continuous.AtomicNormal = Normal(40.0, 100.0)
+
+scala> // Normal(mean, variance) ; the sd is the sqrt of the variance
+
+scala> // If you want to run inference using this element, you can't use variable elimination, as variable elimination works only for elements that have a finite no. of values. In particular, it doesn't work for continuous elements. 
+
+scala> // Another algorithm is IMPORTANCE SAMPLING. Importance sampling is an approximation algorithm and works well with continuous elements. 
+
+scala> import com.cra.algorithm.sampling.Importance
+<console>:13: error: object algorithm is not a member of package com.cra
+       import com.cra.algorithm.sampling.Importance
+                      ^
+
+scala> import com.cra.figaro.algorithm.sampling.Importance
+import com.cra.figaro.algorithm.sampling.Importance
+
+scala> def greaterThan(d: Double) = d> 50
+greaterThan: (d: Double)Boolean
+
+scala> // we've just defined a function called greaterThan which takes a Double and returns a Boolean for the check of the condition d> 50
+
+scala> greaterThan(41)
+res11: Boolean = false
+
+scala> greaterThan(51)
+res12: Boolean = true
+
+scala> println(Importance.probability(temperature, greaterThan _))
+0.1608999999999988
+
+scala> // so, we've asked for the Importance Sampling algorithm and we query the probability that random members of the Normal(40, 100) are  >50.
+
+scala> // given the fact that the mean is 40 and the sd 10, 68% of the members are <= 50
+
+scala> // THE IMPORTANCE SAMPLING ALGORITHM IS A RANDOMIZED ALGORITHM THAT PRODUCES A DIFFERENT ANSWER EVERY TIME, WHICH SHOULD BE IN THE BALLPARK OF THE TRUE VALUE!
+
+scala> println(Importance.probability(temperature, greaterThan _))
+0.16039999999999885
+
+scala> // so, you take the Importance.probability method which has two parameters: the Normal(40, 100)  element and the predicate greaterThan(). You ask the probability that any value from Normal(40,100) satisfies the predicate greaterThan(). (predicate is the function that returns a Boolean result).
+
+scala> // the underscore means you pass any member from temp to the Importance.probability method.
+
+scala> // through greaterthan()
+
+scala> // you pass any member from temp to Importance.probability method through greaterThan()
+
+scala> // Uniform - a uniform element takes values in a given range, with every value in the range being equally like.
+
+scala> import com.cra.figaro.library.atomic.continuous.Uniform
+import com.cra.figaro.library.atomic.continuous.Uniform
+
+scala> val temperature2 = Uniform(10, 70)
+temperature2: com.cra.figaro.library.atomic.continuous.AtomicUniform = Uniform(10.0, 70.0)
+
+scala> // Uniform (min, max) - the min and max of the range. The probability density of allvalues from the min to the max is the same. The size of the range is max-min, so 60.
+
+scala> Importance.probability(temperature2, greaterThan _)
+res15: Double = 0.3346999999999797
+
+scala> // the prob. that any value of Uniform(10, 70) is >50. The range from Uniform(10, 70) that can be > 50 is 20. This represents 1/3 of the whole range, so we have a probability close to 0.3333
+
+scala> // you can also use a discrete uniform probability distribution in the package com.cra.figaro.library.atomic.dicrete. The discrete uniform element makes each of an explicitly listed set of values equally likely. 
+
+scala> import com.cra.figaro.library.atomic.discrete.Uniform
+import com.cra.figaro.library.atomic.discrete.Uniform
+
+scala> val myprefferedtemp= discrete.Uniform((28,29,30,31))
+<console>:16: error: not found: value discrete
+       val myprefferedtemp= discrete.Uniform((28,29,30,31))
+                            ^
+
+scala> val myprefferedtemp= Uniform((28,29,30,31))
+<console>:16: error: reference to Uniform is ambiguous;
+it is imported twice in the same scope by
+import com.cra.figaro.library.atomic.discrete.Uniform
+and import com.cra.figaro.library.atomic.continuous.Uniform
+       val myprefferedtemp= Uniform((28,29,30,31))
+                            ^
+
+
 
 
 
