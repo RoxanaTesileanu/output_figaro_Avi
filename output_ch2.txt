@@ -276,7 +276,103 @@ and import com.cra.figaro.library.atomic.continuous.Uniform
        val myprefferedtemp= Uniform((28,29,30,31))
                             ^
 
+scala> // 2.4 Combining atomic elements by using compound elements
 
+scala> //2.4.1 If
+
+scala> //An If element is made of three elements: a test, a then clause, an else clause. 
+
+scala> // If the value of the test is true, the random process produces the then clause if it is false the else clause. The first argument of the If element is an Element[Boolean]. This argument represents the test. The second argument is the then clause (chosen if the first argument is true). The third argument is the else clause (chosen if the first argument is false). THE THEN AND ELSE CLAUSES MUST HAVE THE SAME VALUE TYPE, WHICH BECOMES THE VALUE TYPE OF THE IF ELEMENT. 
+
+scala> val sunnyToday=Flip(0.2)
+sunnyToday: com.cra.figaro.language.AtomicFlip = Flip(0.2)
+
+scala> val greetingToday= If(sunnyToday,
+     | Select (0.6 -> "Hello, world!", 0.4 -> "Howdy, universe!"),
+     | Select(0.2 -> "Hello, world!", 0.8 -> "Oh no, not again"))
+greetingToday: com.cra.figaro.library.compound.If[String] = If(Flip(0.2), Select(0.6 -> Hello, world!, 0.4 -> Howdy, universe!), Select(0.2 -> Hello, world!, 0.8 -> Oh no, not again))
+
+scala> println(VariableElimination.probability(greetingToday, "Hello, world!"))
+0.27999999999999997
+
+scala> sunnyToday.observe(true)
+
+scala> println(VariableElimination.probability(greetingToday, "Hello, world!"))
+0.6
+
+scala> sunnyToday.observe(false)
+
+scala> println(VariableElimination.probability(greetingToday, "Hello, world!"))
+0.2
+
+scala> // 2.4.2 Dist
+
+scala> // Dist chooses among elements.
+
+scala> //(not among sets of values like Select)
+
+scala> //Dist chooses among two processes.
+
+scala> val goodmood = Dist(0.2 -> Flip(0.6), 0.8 -> Flip(0.2))
+goodmood: com.cra.figaro.language.AtomicDist[Boolean] = Dist(0.2 -> Flip(0.6), 0.8 -> Flip(0.2))
+
+
+scala> //2.4.3 Compound versions of atomic elements
+
+scala> // atomic elements take numeric arguments. When you make the numeric arguments elements, you get compound versions of atomic elements
+
+scala> val sunnyTodayProbability = Uniform(0,0.5)
+<console>:17: error: reference to Uniform is ambiguous;
+it is imported twice in the same scope by
+import com.cra.figaro.library.atomic.discrete.Uniform
+and import com.cra.figaro.library.atomic.continuous.Uniform
+       val sunnyTodayProbability = Uniform(0,0.5)
+                                   ^
+
+____________________________________________________________________________________________
+____________________________________________________________________________________________
+
+
+scala> val sunnyTodayProbability= Uniform(0, 0.5)
+sunnyTodayProbability: com.cra.figaro.library.atomic.continuous.AtomicUniform = Uniform(0.0, 0.5)
+
+scala> // the prob can be between 0 and 0.5 with equal chances
+
+scala> val sunnyToday = Flip(sunnyTodayProbability)
+sunnyToday: com.cra.figaro.language.Flip = Flip(Uniform(0.0, 0.5))
+
+scala> println(Importance.probability(sunnyToday, true))
+0.24850000000000583
+
+scala> // Flip(p) has only one argument. Normal(mean, variance) has two arguments. If you believe the mean is about 40 but you're not quite sure, you can express this like that:
+
+scala> val tempMean = Normal(40, 9)
+tempMean: com.cra.figaro.library.atomic.continuous.AtomicNormal = Normal(40.0, 9.0)
+
+scala> val temperature = Normal(tempMean, 100)
+temperature: com.cra.figaro.library.atomic.continuous.NormalCompoundMean = Normal(Normal(40.0, 9.0), 100.0)
+
+scala> println(Importance.probability(temperature, (d: Double) => d > 50))
+0.16599999999999823
+
+scala> //wow! so, the prob that any temperature is > 50 is 0.165 with the variation in the mean included!
+
+scala> // now if you are not sure about your variance and believe it is between 80 and 105: 
+
+scala> val tempMean = Normal(40, 9)
+tempMean: com.cra.figaro.library.atomic.continuous.AtomicNormal = Normal(40.0, 9.0)
+
+scala> val tempVariance = Select(0.5 -> 80.0, 0.5 -> 105.0)
+tempVariance: com.cra.figaro.language.AtomicSelect[Double] = Select(0.5 -> 80.0, 0.5 -> 105.0)
+
+scala> val temperature = Normal(tempMean, tempVariance)
+temperature: com.cra.figaro.library.atomic.continuous.CompoundNormal = Normal(Normal(40.0, 9.0), Select(0.5 -> 80.0, 0.5 -> 105.0))
+
+scala> println(Importance.probability(temperature, (d: Double) => d> 50))
+0.15599999999999933
+
+____________________________________________________________________________________________
+____________________________________________________________________________________________
 
 
 
