@@ -375,6 +375,91 @@ ________________________________________________________________________________
 ____________________________________________________________________________________________
 
 
+02.03.2017
+
+
+
+scala> import com.cra.figaro.language._
+import com.cra.figaro.language._
+
+scala> // 2.5 Building more-complex models with Apply and Chain
+
+scala> // 2.5.1 Apply
+
+scala> // Apply takes an element and a Scala function as arguments (applying the Scala function to the value of the element to get a new value).
+
+scala> val sunnyDaysInMonth = Binomial(30, 0.2)
+<console>:10: error: not found: value Binomial
+       val sunnyDaysInMonth = Binomial(30, 0.2)
+                              ^
+
+scala> import com.cra.figaro.library.atomic.discrete.Binomial
+import com.cra.figaro.library.atomic.discrete.Binomial
+
+scala> val sunnyDaysInMonth = Binomial(30, 0.2)
+sunnyDaysInMonth: com.cra.figaro.library.atomic.discrete.AtomicBinomial = Binomial(30, 0.2)
+
+scala> def getQuality(i:Int): String = if (i>10) "good"
+<console>:11: error: type mismatch;
+ found   : Unit
+ required: String
+       def getQuality(i:Int): String = if (i>10) "good"
+                                       ^
+
+scala> def getQuality (i:Int) : String = 
+     | if (i>10) "good"
+<console>:12: error: type mismatch;
+ found   : Unit
+ required: String
+       if (i>10) "good"
+       ^
+
+scala> def getQuality (i:Int) : String = 
+     | if (i>10) "good"; else if (i>5) "average"; else "poor"
+getQuality: (i: Int)String
+
+scala> val monthQuality=Apply(sunnyDaysInMonth, getQuality)
+monthQuality: com.cra.figaro.language.Apply1[Int,String] = Apply(Binomial(30, 0.2), <function1>)
+
+scala> import com.cra.figaro.algorithm.factored.VariableElimination
+import com.cra.figaro.algorithm.factored.VariableElimination
+
+scala> println(VariableElimination.probability(monthQuality, "good"))
+0.025616255335326694
+
+scala> // Apply has two arguments. The first is an element and the second is a function, where the type of the function's argument is the same as the value type of the element.
+
+scala> println(VariableElimination.probability(monthQuality, "poor"))
+0.4275124375903212
+
+scala> // THE POSSIBLE VALUES OF APPLY HAVE THE SAME TYPE AS THE RETURN TYPE OF THE FUNCTION ARGUMENT
+
+scala> val teamWinsInMonth = Binomial(5,0.4)
+teamWinsInMonth: com.cra.figaro.library.atomic.discrete.AtomicBinomial = Binomial(5, 0.4)
+
+scala> val monthQuality = Apply(sunnyDaysInMonth, teamWinsInMonth, 
+     | (days: Int, wins: Int) => {
+     | val x = days*wins
+     | if (x > 20) "good", else if (x > 10) "average"; else "poor"
+<console>:4: error: ';' expected but ',' found.
+       if (x > 20) "good", else if (x > 10) "average"; else "poor"
+                         ^
+
+scala> }
+<console>:1: error: eof expected but '}' found.
+       }
+       ^
+
+scala> val monthQuality = Apply(sunnyDaysInMonth, teamWinsInMonth,
+     | (days: Int, wins:Int) => {
+     | val x = days*wins
+     | if (x > 20) "good"; else if (x > 10) "average"; else "poor"})
+monthQuality: com.cra.figaro.language.Apply2[Int,Int,String] = Apply(Binomial(30, 0.2), Binomial(5, 0.4), <function2>)
+
+scala> println (VariableElimination.probability(monthQuality, "good"))
+0.15100056576418375
+
+
 
 
 
