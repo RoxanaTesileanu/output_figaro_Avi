@@ -508,6 +508,80 @@ goodMood: com.cra.figaro.language.Chain[String,Boolean] = Chain(Apply(Binomial(3
 scala> println(VariableElimination.probability(goodMood, true))
 0.37510687629826517
 
+scala> val goodMood = Chain(monthQuality, sunnyToday,
+     | (quality: String, sunny: Boolean) => 
+     | if (sunny == true) {
+     |  if (quality == "good") Flip (0.9)
+     |  else if (quality == "average") Flip (0.7)
+     |  else Flip (0.4) }
+     | else {
+     |  if (quality == "good") Flip (0.6)
+     |  else if (quality == "average") Flip (0.3)
+     |  else Flip(0.05)})
+goodMood: com.cra.figaro.language.Chain[(String, Boolean),Boolean] = Chain(Apply(Apply(Binomial(30, 0.2), Binomial(5, 0.4), <function2>), Flip(0.2), <function2>), <function1>)
+
+scala> println(VariableElimination.probability(goodMood, true))
+0.28963167524959427
+
+
+_____________________________________________________________________________________________
+_____________________________________________________________________________________________
+
+06.03.2017
+
+
+scala> import com.cra.figaro.language._
+import com.cra.figaro.language._
+
+scala> import com.cra.figaro.algorithm.factored.VariableElimination
+import com.cra.figaro.algorithm.factored.VariableElimination
+
+scala> import com.cra.figaro.library.atomic.discrete.Binomial
+import com.cra.figaro.library.atomic.discrete.Binomial
+
+scala> val sunnyDaysInMonth = Binomial(30, 0.2)
+sunnyDaysInMonth: com.cra.figaro.library.atomic.discrete.AtomicBinomial = Binomial(30, 0.2)
+
+scala> println(VariableElimination.probability(sunnyDaysInMonth, 5))
+0.172279182850003
+
+scala> sunnyDaysInMonth.setCondition((i:Int) => i>8))
+<console>:1: error: ';' expected but ')' found.
+       sunnyDaysInMonth.setCondition((i:Int) => i>8))
+                                                    ^
+
+scala> sunnyDaysInMonth.setCondition((i:Int) => i>8)
+
+scala> println(VariableElimination.probability(sunnyDaysInMonth, 9))
+0.5251706932905321
+
+scala> val monthQuality = Apply(sunnyDaysInMonth, (i:Int) => if (i>10) "good"; else if (i>5) "average"; else "poor")
+monthQuality: com.cra.figaro.language.Apply1[Int,String] = Apply(Binomial(30, 0.2), <function1>)
+
+scala> val goodMood = Chain(monthQuality, (s:String) => 
+     | if (s == "good") Flip(0.9)
+     | else if (s== "average") Flip(0.6)
+     | else Flip (0.6))
+goodMood: com.cra.figaro.language.Chain[String,Boolean] = Chain(Apply(Binomial(30, 0.2), <function1>), <function1>)
+
+scala> println(VariableElimination.probability(goodMood, true))
+0.6597344078195807
+
+scala> sunnyDaysInMonth.addCondition((i:Int) => i%3==2)
+
+scala> println(VariableElimination.probability(goodMood, true))
+0.9
+
+scala> sunnyDaysInMonth.removeConditions()
+
+scala> println(VariableElimination.probability(goodMood, true))
+0.607684876600598
+
+scala> // so the order matters!
+
+
+
+
 
 
 
