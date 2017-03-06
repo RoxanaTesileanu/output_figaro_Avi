@@ -522,8 +522,6 @@ goodMood: com.cra.figaro.language.Chain[(String, Boolean),Boolean] = Chain(Apply
 
 scala> println(VariableElimination.probability(goodMood, true))
 0.28963167524959427
-
-
 _____________________________________________________________________________________________
 _____________________________________________________________________________________________
 

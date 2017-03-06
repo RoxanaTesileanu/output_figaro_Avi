@@ -1,0 +1,64 @@
+scala> // exercise 1
+
+scala> val wrongSide = Flip(0.5)
+wrongSide: com.cra.figaro.language.AtomicFlip = Flip(0.5)
+
+scala> val greetingToday = If(wrongSide,
+     | Select (1.0 -> "Oh no, not again!"),
+     | If(sunnyToday,
+     | Select(0.6 -> "Hello, world!", 0.4 -> "Howdy, universe"),
+     | Select(0.2 -> "Hello, world!", 0.8 -> "Oh no, not again")))
+greetingToday: com.cra.figaro.library.compound.If[String] = If(Flip(0.5), Select(1.0 -> Oh no, not again!), If(Flip(0.2), Select(0.6 -> Hello, world!, 0.4 -> Howdy, universe), Select(0.2 -> Hello, world!, 0.8 -> Oh no, not again)))
+
+scala> greetingToday.observe("Oh no, not again!")
+
+scala> println(VariableElimination.probability(sunnyToday,true))
+0.2
+
+scala> // ex 3
+
+scala> val x = Flip(0.4)
+x: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val y = Flip(0.4)
+y: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val z = x
+z: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val w = x === z
+w: com.cra.figaro.library.compound.Eq[x.Value] = Flip(0.4) === Flip(0.4)
+
+scala> println(VariableElimination.probability(w, true))
+1.0
+
+scala> val z = y
+z: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val w = x === z
+w: com.cra.figaro.library.compound.Eq[x.Value] = Flip(0.4) === Flip(0.4)
+
+scala> println(VariableElimination.probability(w, true))
+0.52
+
+scala> val die1= FromRange(1,7)
+<console>:13: error: not found: value FromRange
+       val die1= FromRange(1,7)
+                 ^
+
+scala> import com.cra.figaro.library.atomic.discrete.FromRange
+import com.cra.figaro.library.atomic.discrete.FromRange
+
+scala> val die1 = FromRange(1,7)
+die1: com.cra.figaro.library.atomic.discrete.FromRange = Uniform(1, 2, 3, 4, 5, 6)
+
+scala> val die2 = FromRange(1,7)
+die2: com.cra.figaro.library.atomic.discrete.FromRange = Uniform(1, 2, 3, 4, 5, 6)
+
+scala> val total= Apply(die1, die2, (i1 : Int, i2 : Int) => i1 + i2)
+total: com.cra.figaro.language.Apply2[Int,Int,Int] = Apply(Uniform(1, 2, 3, 4, 5, 6), Uniform(1, 2, 3, 4, 5, 6), <function2>)
+
+scala> println(VariableElimination.probability(total, 11))
+0.05555555555555556
+
+
