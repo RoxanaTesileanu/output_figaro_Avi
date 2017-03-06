@@ -579,8 +579,44 @@ scala> println(VariableElimination.probability(goodMood, true))
 
 scala> // so the order matters!
 
+scala> goodMood.addConstraint((b: Boolean) => if (b) 0.5; else 0.1)
 
+scala> goodMood.removeConstraints()
 
+scala> goodMood.addConstraint((b:Boolean) => if (b) 0.5; else 1.0)
+
+scala> println(VariableElimination.probability(goodMood, true))
+0.43645642167335447
+
+scala> val result1 = Flip(0.4)
+result1: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val result2 = Flip(0.4)
+result2: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val result3 = Flip(0.4)
+result3: com.cra.figaro.language.AtomicFlip = Flip(0.4)
+
+scala> val allWins = Apply(result1, result2, result3, 
+     | (w1: Boolean, w2: Boolean, w3: Boolean) => w1 && w2 && w3)
+allWins: com.cra.figaro.language.Apply3[Boolean,Boolean,Boolean,Boolean] = Apply(Flip(0.4), Flip(0.4), Flip(0.4), <function3>)
+
+scala> println(VariableElimination.probability(allWins, true))
+0.06400000000000002
+
+scala> def makeStreaky(r1: Element[Boolean], r2: Element[Boolean]) {
+     | val pair = Apply(r1, r2, (b1: Boolean, b2: Boolean) => (b1, b2)
+     | )
+     | pair.setConstraint((bb: (Boolean, Boolean)) => 
+     | if (bb._1 == bb._2) 1.0; else 0.5) }
+makeStreaky: (r1: com.cra.figaro.language.Element[Boolean], r2: com.cra.figaro.language.Element[Boolean])Unit
+
+scala> makeStreaky(result1, result2)
+
+scala> makeStreaky(result2, result3)
+
+scala> println(VariableElimination.probability(allWins, true))
+0.1103448275862069
 
 
 
