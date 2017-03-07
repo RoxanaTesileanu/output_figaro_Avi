@@ -61,4 +61,171 @@ total: com.cra.figaro.language.Apply2[Int,Int,Int] = Apply(Uniform(1, 2, 3, 4, 5
 scala> println(VariableElimination.probability(total, 11))
 0.05555555555555556
 
+_____________________________________________________________________________________________
+_____________________________________________________________________________________________
+
+
+07.03.2017
+
+
+scala> import com.cra.figaro.language._
+import com.cra.figaro.language._
+
+scala> import com.cra.figaro.library.atomic.discrete.FromRange
+import com.cra.figaro.library.atomic.discrete.FromRange
+
+scala> // ex 5
+
+scala> val die1 = FromRange(1,7)
+die1: com.cra.figaro.library.atomic.discrete.FromRange = Uniform(1, 2, 3, 4, 5, 6)
+
+scala> val die2 = FromRange(1,7)
+die2: com.cra.figaro.library.atomic.discrete.FromRange = Uniform(1, 2, 3, 4, 5, 6)
+
+scala> val total = Apply(die1, die2, (i1 : Int, i2 : Int) => i1 + i2)
+total: com.cra.figaro.language.Apply2[Int,Int,Int] = Apply(Uniform(1, 2, 3, 4, 5, 6), Uniform(1, 2, 3, 4, 5, 6), <function2>)
+
+scala> total.addCondition((i : Int) => i > 8)
+
+scala> import com.cra.figaro.algorithm.factored.VariableElimination
+import com.cra.figaro.algorithm.factored.VariableElimination
+
+scala> println(VariableElimination.probability(die1, 6))
+0.4
+
+scala> total.removeConditions()
+
+scala> println(VariableElimination.probability(die1, 6))
+0.16666666666666666
+
+scala> def double = die1 === die2
+double: com.cra.figaro.library.compound.Eq[die1.Value]
+
+scala> val jail = doubles && doubles && doubles
+<console>:12: error: not found: value doubles
+       val jail = doubles && doubles && doubles
+                  ^
+<console>:12: error: not found: value doubles
+       val jail = doubles && doubles && doubles
+                             ^
+<console>:12: error: not found: value doubles
+       val jail = doubles && doubles && doubles
+                                        ^
+
+scala> val jail = double && double && double
+jail: com.cra.figaro.language.Apply2[Boolean,Boolean,Boolean] = Apply(Apply(Uniform(1, 2, 3, 4, 5, 6) === Uniform(1, 2, 3, 4, 5, 6), Uniform(1, 2, 3, 4, 5, 6) === Uniform(1, 2, 3, 4, 5, 6), <function2>), Uniform(1, 2, 3, 4, 5, 6) === Uniform(1, 2, 3, 4, 5, 6), <function2>)
+
+scala> println(VariableElimination.probability(jail, true))
+0.16666666666666666
+
+scala> // ex 7
+
+scala> val numberOfSides = 
+     | Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20)
+numberOfSides: com.cra.figaro.language.AtomicSelect[Int] = Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20)
+
+scala> import com.cra.figaro.library.atomic.discrete.Uniform
+import com.cra.figaro.library.atomic.discrete.Uniform
+
+scala> val numberOfSides2= Uniform((4,6,8,12,20))
+numberOfSides2: com.cra.figaro.library.atomic.discrete.AtomicUniform[(Int, Int, Int, Int, Int)] = Uniform((4,6,8,12,20))
+
+scala> val roll = Chain(numberOfSides, ((i : Int) => FromRange(1, i+1)))
+roll: com.cra.figaro.language.Chain[Int,Int] = Chain(Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20), <function1>)
+
+scala> val roll2 = Chain(numberOfSides2, ((i :Int) => FromRange(1, i+1)))
+<console>:14: error: type mismatch;
+ found   : Int => com.cra.figaro.library.atomic.discrete.FromRange
+ required: ((Int, Int, Int, Int, Int)) => com.cra.figaro.language.Element[Int]
+       val roll2 = Chain(numberOfSides2, ((i :Int) => FromRange(1, i+1)))
+                                                   ^
+
+scala> // ok, it returns a probability not an Int?! or what happens exactly?
+
+scala> println(VariableElimination.pribability(roll, 12))
+<console>:16: error: value pribability is not a member of object com.cra.figaro.algorithm.factored.VariableElimination
+              println(VariableElimination.pribability(roll, 12))
+                                          ^
+
+scala> println(VariableElimination.probability(roll, 12))
+0.02666666666666666
+
+scala> println(VariableElimination.probability(numberOfSides, 12))
+0.2
+
+scala> println(VariableElimination.probability(roll, 7))
+0.05166666666666665
+
+scala> roll.observe(7)
+
+scala> println(VariableElimination.probability(numberOfSides, 12))
+0.3225806451612903
+
+scala> roll.unobserve()
+
+scala> numberOfSides.observe(12)
+
+scala> println(VariableElimination.probability(roll, 7))
+0.08333333333333333
+
+scala> // ex 8
+
+scala> val numberOfSides1 = 
+     | Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20)
+numberOfSides1: com.cra.figaro.language.AtomicSelect[Int] = Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20)
+
+scala> val roll1 = Chain(numberOfSides1, ((i: Int) => FromRange(i, i+1)))
+roll1: com.cra.figaro.language.Chain[Int,Int] = Chain(Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20), <function1>)
+
+scala> def stickinessConstraint (sidesPair : (Int, Int)) = if (sidesPair._1 == sidesPair._2) 1.0 else 0.5
+stickinessConstraint: (sidesPair: (Int, Int))Double
+
+scala> val pairOfSides = ^^ (numberOfSides, numberOfSides1)
+<console>:15: error: not found: value ^^
+       val pairOfSides = ^^ (numberOfSides, numberOfSides1)
+                         ^
+
+scala> val pairOfSides = Pair(numberOfSides, numberOfSides1)
+warning: there was one deprecation warning; re-run with -deprecation for details
+pairOfSides: (com.cra.figaro.language.AtomicSelect[Int], com.cra.figaro.language.AtomicSelect[Int]) = (Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20),Select(0.2 -> 4, 0.2 -> 6, 0.2 -> 8, 0.2 -> 12, 0.2 -> 20))
+
+scala> val pairOfSides = Pair(numerOfSides, numberOfSides1) -deprecation
+<console>:14: error: not found: value numerOfSides
+       val pairOfSides = Pair(numerOfSides, numberOfSides1) -deprecation
+                              ^
+<console>:14: error: not found: value deprecation
+       val pairOfSides = Pair(numerOfSides, numberOfSides1) -deprecation
+                                                             ^
+
+scala> pairOfSides.addConstraint(stickinessConstraint)
+<console>:18: error: value addConstraint is not a member of (com.cra.figaro.language.AtomicSelect[Int], com.cra.figaro.language.AtomicSelect[Int])
+              pairOfSides.addConstraint(stickinessConstraint)
+                          ^
+<console>:18: error: missing arguments for method stickinessConstraint;
+follow this method with `_' if you want to treat it as a partially applied function
+              pairOfSides.addConstraint(stickinessConstraint)
+                                        ^
+
+scala> pairOfSides.addConstraint(stickinessConstraint)
+<console>:18: error: value addConstraint is not a member of (com.cra.figaro.language.AtomicSelect[Int], com.cra.figaro.language.AtomicSelect[Int])
+              pairOfSides.addConstraint(stickinessConstraint)
+                          ^
+<console>:18: error: missing arguments for method stickinessConstraint;
+follow this method with `_' if you want to treat it as a partially applied function
+              pairOfSides.addConstraint(stickinessConstraint)
+                                        ^
+
+scala> pairOfSides.setConstraint(stickinessConstraint)
+<console>:18: error: value setConstraint is not a member of (com.cra.figaro.language.AtomicSelect[Int], com.cra.figaro.language.AtomicSelect[Int])
+              pairOfSides.setConstraint(stickinessConstraint)
+                          ^
+<console>:18: error: missing arguments for method stickinessConstraint;
+follow this method with `_' if you want to treat it as a partially applied function
+              pairOfSides.setConstraint(stickinessConstraint)
+                                        ^
+
+
+
+
+
 
